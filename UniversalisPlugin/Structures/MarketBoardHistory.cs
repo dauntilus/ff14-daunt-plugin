@@ -9,7 +9,8 @@ using UniversalisPlugin;
 
 namespace Dalamud.Game.Network.Structures
 {
-    public class MarketBoardHistory {
+    public class MarketBoardHistory
+    {
         public uint CatalogId;
         public uint CatalogId2;
 

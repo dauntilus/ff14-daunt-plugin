@@ -9,8 +9,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UniversalisPlugin</RootNamespace>
-    <AssemblyName>FFXIVMB ACT Plugin</AssemblyName>
+    <RootNamespace>FF14Daunt</RootNamespace>
+    <AssemblyName>FF14DauntUtils</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
@@ -84,15 +84,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Definitions.cs" />
-    <Compile Include="MarketBoardItemRequest.cs" />
-    <Compile Include="MarketBoardUploaders\IMarketBoardUploader.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\FFXIVMBUploader.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\UniversalisHistoryEntry.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\UniversalisHistoryUploadRequest.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\UniversalisItemListingsEntry.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\UniversalisItemListingsUploadRequest.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\UniversalisItemMateria.cs" />
-    <Compile Include="MarketBoardUploaders\Universalis\UniversalisMarketBoardUploader.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -119,9 +110,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="packages\Fody.6.0.0\build\Fody.targets" Condition="Exists('packages\Fody.6.0.0\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -132,6 +121,6 @@
   </Target>
   <Import Project="..\packages\Fody.6.0.0\build\Fody.targets" Condition="Exists('..\packages\Fody.6.0.0\build\Fody.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>copy "E:\projects\universalis_act_plugin-master\UniversalisPlugin\bin\Debug\FFXIVMB ACT Plugin.dll" "C:\Users\David\AppData\Roaming\Advanced Combat Tracker\Plugins\FFXIVMB ACT Plugin.dll"</PostBuildEvent>
+    <PostBuildEvent>copy "E:\projects\universalis_act_plugin-master\UniversalisPlugin\bin\Debug\FF14DauntUtils.dll" "C:\Users\David\AppData\Roaming\Advanced Combat Tracker\Plugins\FF14DauntUtils.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>

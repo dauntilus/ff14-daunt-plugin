@@ -15,16 +15,13 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Xml;
 using Dalamud.Game.Network;
-using Dalamud.Game.Network.MarketBoardUploaders;
 using Dalamud.Game.Network.Structures;
-using Dalamud.Game.Network.Universalis.MarketBoardUploaders;
 using FFXIV_ACT_Plugin;
-using UniversalisPlugin.MarketBoardUploaders.Universalis;
 using System.Web.Script.Serialization;
 
-[assembly: AssemblyTitle("FFXIVMB ACT plugin")]
-[assembly: AssemblyDescription("ACT plugin that automatically uploads market board data to FFXIVMB.com, forked from Universalis.")]
-[assembly: AssemblyCompany("purveyor")]
+[assembly: AssemblyTitle("FF14 David's Tools")]
+[assembly: AssemblyDescription("Does stuff")]
+[assembly: AssemblyCompany("?")]
 [assembly: AssemblyVersion("1.0.0.0")]
 
 namespace UniversalisPlugin
@@ -59,11 +56,9 @@ namespace UniversalisPlugin
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.logTextBox = new System.Windows.Forms.RichTextBox();
             this.checkbox_sendraw = new System.Windows.Forms.CheckBox();
             this.textBox_addr = new System.Windows.Forms.TextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -71,46 +66,40 @@ namespace UniversalisPlugin
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(106, 25);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(194, 13);
+            this.label1.Size = new System.Drawing.Size(0, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Thank you for contributing to FFXIVMB!";
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(100, 50);
-            this.pictureBox1.TabIndex = 4;
-            this.pictureBox1.TabStop = false;
             // 
             // logTextBox
             // 
-            this.logTextBox.Dock = System.Windows.Forms.DockStyle.Left;
-            this.logTextBox.Location = new System.Drawing.Point(0, 0);
-            this.logTextBox.Margin = new System.Windows.Forms.Padding(30);
+            this.logTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.logTextBox.Location = new System.Drawing.Point(3, 22);
+            this.logTextBox.Margin = new System.Windows.Forms.Padding(500);
             this.logTextBox.Name = "logTextBox";
             this.logTextBox.ReadOnly = true;
-            this.logTextBox.Size = new System.Drawing.Size(562, 516);
+            this.logTextBox.Size = new System.Drawing.Size(686, 8000);
             this.logTextBox.TabIndex = 3;
             this.logTextBox.Text = "";
-            this.logTextBox.TextChanged += new System.EventHandler(this.LogTextBox_TextChanged);
             // 
             // checkbox_sendraw
             // 
             this.checkbox_sendraw.AutoSize = true;
-            this.checkbox_sendraw.Location = new System.Drawing.Point(584, 33);
+            this.checkbox_sendraw.Location = new System.Drawing.Point(3, 0);
             this.checkbox_sendraw.Name = "checkbox_sendraw";
-            this.checkbox_sendraw.Size = new System.Drawing.Size(102, 17);
+            this.checkbox_sendraw.Size = new System.Drawing.Size(196, 17);
             this.checkbox_sendraw.TabIndex = 5;
-            this.checkbox_sendraw.Text = "Send Raw Data";
+            this.checkbox_sendraw.Text = "Send raw packets to server address";
             this.checkbox_sendraw.UseVisualStyleBackColor = true;
+            this.checkbox_sendraw.CheckedChanged += new System.EventHandler(this.checkbox_sendraw_CheckedChanged);
             // 
             // textBox_addr
             // 
-            this.textBox_addr.Location = new System.Drawing.Point(583, 3);
+            this.textBox_addr.Location = new System.Drawing.Point(219, -2);
             this.textBox_addr.Name = "textBox_addr";
             this.textBox_addr.Size = new System.Drawing.Size(100, 20);
             this.textBox_addr.TabIndex = 6;
+            this.textBox_addr.Text = "server address";
             this.textBox_addr.TextChanged += new System.EventHandler(this.textBox_addr_TextChanged);
             // 
             // UniversalisPluginControl
@@ -120,21 +109,16 @@ namespace UniversalisPlugin
             this.Controls.Add(this.textBox_addr);
             this.Controls.Add(this.checkbox_sendraw);
             this.Controls.Add(this.logTextBox);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label1);
             this.Name = "UniversalisPluginControl";
             this.Size = new System.Drawing.Size(686, 516);
-            this.Load += new System.EventHandler(this.UniversalisPluginControl_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private PictureBox pictureBox1;
-        private RichTextBox logTextBox;
+        public RichTextBox logTextBox;
         private CheckBox checkbox_sendraw;
         private TextBox textBox_addr;
         private System.Windows.Forms.Label label1;
@@ -160,9 +144,6 @@ namespace UniversalisPlugin
         public uint current_player = 0;
         public long last_update_time = 0;
 
-        private List<MarketBoardItemRequest> _marketBoardRequests = new List<MarketBoardItemRequest>();
-        private FFXIVMBUploader _uploader;
-
         #region IActPluginV1 Members
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
         {
@@ -175,20 +156,11 @@ namespace UniversalisPlugin
 
             LoadSettings();
 
-            pluginScreenSpace.Text = "FFXIVMB";
+            pluginScreenSpace.Text = "DauntUtils";
 
 
             try
             {
-                //if (CheckNeedsUpdate())
-                //{
-                //    MessageBox.Show(
-                //        "The FFXIVMB plugin needs to be updated. Please download an updated version from the FFXIVMB website",
-                //        "FFXIVMB plugin update", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                //    Process.Start("https://ffxivmb.com/Downloads");
-                //    return;
-                //}
-
                 _definitions = new Definitions();
                 FfxivPlugin = GetFfxivPlugin();
 
@@ -196,8 +168,7 @@ namespace UniversalisPlugin
                 FfxivPlugin.DataSubscription.NetworkReceived += DataSubscriptionOnNetworkReceived;
                 FfxivPlugin.DataSubscription.NetworkSent += DataSubscriptionOnNetworkSent;
 
-                _uploader = new FFXIVMBUploader(this, textBox_addr.Text);
-                Log("FFXIVMB plugin loaded.");
+                Log("plugin loaded.");
                 lblStatus.Text = "Plugin Started";
             }
             catch (Exception ex)
@@ -244,7 +215,6 @@ namespace UniversalisPlugin
         }
         private void DataSubscriptionLogLine(uint EventType, uint Seconds, string message)
         {
-
             if (checkbox_sendraw.Checked)
             {
                 this.SendText(message, "logs");
@@ -252,11 +222,16 @@ namespace UniversalisPlugin
         }
         private void DataSubscriptionOnNetworkSent(string connection, long epoch, byte[] message)
         {
-            this.SendRaw(message, "outbound", epoch);
+            if (checkbox_sendraw.Checked)
+            {
+                this.SendRaw(message, "outbound", epoch);
+            }
         }
         private void DataSubscriptionOnNetworkReceived(string connection, long epoch, byte[] message)
         {
             //Log($"{connection}: {epoch.ToString("X")}");
+            var opCode = BitConverter.ToInt16(message, 0x12);
+
             if (checkbox_sendraw.Checked)
             {
                 if (current_player != FfxivPlugin.DataRepository.GetCurrentPlayerID() || last_update_time < DateTimeOffset.Now.ToUnixTimeSeconds() - 10)
@@ -265,120 +240,16 @@ namespace UniversalisPlugin
                     last_update_time = DateTimeOffset.Now.ToUnixTimeSeconds();
                     this.SendText(new JavaScriptSerializer().Serialize(new { playerID = current_player, worldID = CurrentWorldId }), "metadata");
                 }
-                var opCode = BitConverter.ToInt16(message, 0x12);
 
                 this.SendRaw(message, "raw", epoch);
             }
 
-            //if (opCode == _definitions.MarketBoardItemRequestStart)
-            //{
-            //    var catalogId = (uint) BitConverter.ToInt32(message, 0x20);
-            //    var amount = message[0x2B];
+            if (opCode == 350)
+            {
+                var listing = HousingWardInfo.Read(message.Skip(0x20).ToArray(), this);
+                return;
+            }
 
-            //    _marketBoardRequests.Add(new MarketBoardItemRequest
-            //    {
-            //        CatalogId = catalogId,
-            //        AmountToArrive = amount,
-            //        Listings = new List<MarketBoardCurrentOfferings.MarketBoardItemListing>(),
-            //        History = new List<MarketBoardHistory.MarketBoardHistoryListing>()
-            //    });
-
-            //    Log($"NEW MB REQUEST START: item#{catalogId} amount#{amount}");
-            //    return;
-            //}
-
-            //if (opCode == _definitions.MarketBoardOfferings)
-            //{
-            //    var listing = MarketBoardCurrentOfferings.Read(message.Skip(0x20).ToArray());
-
-            //    var request =
-            //        this._marketBoardRequests.LastOrDefault(
-            //            r => r.CatalogId == listing.ItemListings[0].CatalogId && !r.IsDone);
-
-            //    if (request == null)
-            //    {
-            //        Log(
-            //            $"[ERROR] Market Board data arrived without a corresponding request: item#{listing.ItemListings[0].CatalogId}");
-            //        return;
-            //    }
-
-            //    if (request.Listings.Count + listing.ItemListings.Count > request.AmountToArrive)
-            //    {
-            //        Log(
-            //            $"[ERROR] Too many Market Board listings received for request: {request.Listings.Count + listing.ItemListings.Count} > {request.AmountToArrive} item#{listing.ItemListings[0].CatalogId}");
-            //        return;
-            //    }
-
-            //    if (request.ListingsRequestId != -1 && request.ListingsRequestId != listing.RequestId)
-            //    {
-            //        Log(
-            //            $"[ERROR] Non-matching RequestIds for Market Board data request: {request.ListingsRequestId}, {listing.RequestId}");
-            //        return;
-            //    }
-
-            //    if (request.ListingsRequestId == -1 && request.Listings.Count > 0)
-            //    {
-            //        Log(
-            //            $"[ERROR] Market Board data request sequence break: {request.ListingsRequestId}, {request.Listings.Count}");
-            //        return;
-            //    }
-
-            //    if (request.ListingsRequestId == -1)
-            //    {
-            //        request.ListingsRequestId = listing.RequestId;
-            //        Log($"First Market Board packet in sequence: {listing.RequestId}");
-            //    }
-
-            //    request.Listings.AddRange(listing.ItemListings);
-
-            //    //Log($"Added {listing.ItemListings.Count} ItemListings to request#{request.ListingsRequestId}, now {request.Listings.Count}/{request.AmountToArrive}, item#{request.CatalogId}");
-
-            //    //if (true || request.IsDone)
-            //    if (true)
-            //    {
-            //        //Log($"Market Board request finished, starting upload: request#{request.ListingsRequestId} item#{request.CatalogId} amount#{request.AmountToArrive}");
-            //        try
-            //        {
-            //            this._uploader.Upload(request);
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            Log("[ERROR] Market Board data upload failed:\n" + ex);
-            //        }
-            //    }
-
-            //    return;
-            //}
-
-            //if (opCode == _definitions.MarketBoardHistory)
-            //{
-            //    var listing = MarketBoardHistory.Read(message.Skip(0x20).ToArray());
-
-            //    var request = this._marketBoardRequests.LastOrDefault(r => r.CatalogId == listing.CatalogId);
-
-            //    if (request == null)
-            //    {
-            //        Log(
-            //            $"Market Board data arrived without a corresponding request: item#{listing.CatalogId}");
-            //        return;
-            //    }
-
-            //    request.History.AddRange(listing.HistoryListings);
-
-            //    Log($"Added history for item#{listing.CatalogId} with size {listing.HistoryListings.Count()}");
-            //    if (request.ListingsRequestId != -1)
-            //    {
-            //        try
-            //        {
-            //            this._uploader.Upload(request);
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            Log("[ERROR] Market Board data upload failed:\n" + ex);
-            //        }
-            //    }
-
-            //}
         }
 
         private FFXIV_ACT_Plugin.FFXIV_ACT_Plugin GetFfxivPlugin()
@@ -400,7 +271,7 @@ namespace UniversalisPlugin
             }
 
             if (ffxivPlugin == null)
-                throw new Exception("Could not find FFXIV plugin. Make sure that it is loaded before FFXIVMB ACT plugin.");
+                throw new Exception("Could not find FFXIV plugin. Make sure that it is loaded this.");
 
             return (FFXIV_ACT_Plugin.FFXIV_ACT_Plugin) ffxivPlugin;
         }
@@ -411,17 +282,6 @@ namespace UniversalisPlugin
 
         public void Log(string text) => logTextBox.AppendText($"{text}\n");
 
-        //private static bool CheckNeedsUpdate()
-        //{
-        //    using (var client = new WebClient())
-        //    {
-        //        var remoteVersion =
-        //            client.DownloadString(
-        //                "https://raw.githubusercontent.com/goaaats/universalis_act_plugin/master/version");
-
-        //        return !remoteVersion.StartsWith(Util.GetAssemblyVersion());
-        //    }
-        //}
 
         #endregion
 
@@ -473,29 +333,14 @@ namespace UniversalisPlugin
 			xWriter.Close();
 		}
 
-        private void LogTextBox_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void RichTextBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void UniversalisPluginControl_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        private void checkbox_sendraw_CheckedChanged(object sender, EventArgs e)
         {
 
         }
 
         private void textBox_addr_TextChanged(object sender, EventArgs e)
         {
-            this._uploader.server_addr = this.textBox_addr.Text;
+
         }
     }
 }
