@@ -13,7 +13,7 @@ namespace Dalamud.Game.Network.Structures
     {
 
         public short LandId;
-        public short WardNumber;
+        public int WardNumber;
         public short TerritoryTypeId;
         public short WorldId;
         public List<HouseInfoEntry> HouseListings;
@@ -37,7 +37,7 @@ namespace Dalamud.Game.Network.Structures
             using (var stream = new MemoryStream(message)) {
                 using (var reader = new BinaryReader(stream)) {
                     output.LandId = reader.ReadInt16();
-                    output.WardNumber = reader.ReadInt16();
+                    output.WardNumber = 1+reader.ReadInt16();
                     output.TerritoryTypeId = reader.ReadInt16();
                     output.WorldId = reader.ReadInt16();
 
